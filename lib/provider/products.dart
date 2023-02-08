@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/http_exception.dart';
 import './product.dart';
 
 class Products with ChangeNotifier {
@@ -57,16 +58,22 @@ class Products with ChangeNotifier {
     final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json');
     try {
       final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      extractedData.forEach((pId, pData) {
-        loadedProducts.add(Product(id: pId, title: pData['title'], description: pData['description'], price: pData['price'], imageUrl: pData['imageUrl'], isFavorite: pData['isFavorite']));
-      });
+      // if(json.decode(response.body) != null)
+        final extractedData = json.decode(response.body) as Map<String,
+            dynamic>;
+        final List<Product> loadedProducts = [];
+        extractedData.forEach((pId, pData) {
+          loadedProducts.add(Product(id: pId,
+              title: pData['title'],
+              description: pData['description'],
+              price: pData['price'],
+              imageUrl: pData['imageUrl'],
+              isFavorite: pData['isFavorite']));
+        });
+
       _items = loadedProducts;
       notifyListeners();
-    } catch (error) {
-      throw error;
-    }
+    } catch (e) {print('...');}
 }
 
   Future<void> addProduct(Product product) {
@@ -95,7 +102,7 @@ class Products with ChangeNotifier {
   Future<void> update(String id, Product p) async {
     final pIndex = _items.indexWhere((element) => element.id == id);
     if(pIndex >= 0) {
-      final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json');
+      final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products/$id.json');
       await http.patch(url, body: json.encode({
         'title' : p.title,
         'description' : p.description,
@@ -113,12 +120,12 @@ class Products with ChangeNotifier {
     Product? existingProduct = _items[existingProdIndex];
     _items.removeAt(existingProdIndex);
     notifyListeners();
-    await http.delete(url).then((_) {
+    final response = await http.delete(url);
+      if(response.statusCode >= 400) {
+        _items.insert(existingProdIndex, existingProduct);
+        notifyListeners();
+        throw HttpException('could not delete product');
+      }
       existingProduct = null;
-    }).catchError((_) {
-      _items.insert(existingProdIndex, existingProduct!);
-      notifyListeners();
-    });
-
   }
 }
