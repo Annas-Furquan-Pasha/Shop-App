@@ -15,6 +15,7 @@ class OrderScreen extends StatelessWidget {
     final orders = Provider.of<Order>(context);
     return Scaffold(
       appBar: AppBar(
+        elevation: 0.0,
         title: Text('Your Orders',
           style: Theme.of(context).textTheme.headline1,
         ),

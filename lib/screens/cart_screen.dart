@@ -30,14 +30,16 @@ class CartScreen extends StatelessWidget {
                 children: <Widget>[
                   Text('Total', style: Theme.of(context).textTheme.headline3,),
                   const Spacer(),
-                  Chip(label: Text('\$ ${cart.totalAmount}'), backgroundColor: Theme.of(context).colorScheme.secondary,),
+                  Chip(label: Text('\$ ${cart.totalAmount.toStringAsFixed(2)}'), backgroundColor: Theme.of(context).colorScheme.secondary,),
                   TextButton(onPressed: () {
-                    Provider.of<Order>(context, listen: false).addOrder(
-                      cart.items.values.toList(),
-                      cart.totalAmount,
-                    );
-                    cart.clear();
-                    Navigator.pushNamed(context, OrderScreen.routeName);
+                    if(cart.items.isNotEmpty) {
+                      Provider.of<Order>(context, listen: false).addOrder(
+                        cart.items.values.toList(),
+                        cart.totalAmount,
+                      );
+                      cart.clear();
+                      Navigator.pushNamed(context, OrderScreen.routeName);
+                    }
                   },
                     child: const Text('Order Now'),
                   ),
@@ -45,10 +47,11 @@ class CartScreen extends StatelessWidget {
               ),
             ),
           ),
+          if (cart.items.isNotEmpty)
           Expanded(
               child: ListView.builder(
               itemBuilder: (_, index) => CartDetails(
-                  id: cart.items.values.toList()[index].id,
+                id: cart.items.values.toList()[index].id,
                 pId : cart.items.keys.toList()[index],
                 title: cart.items.values.toList()[index].title,
                 price: cart.items.values.
@@ -58,6 +61,7 @@ class CartScreen extends StatelessWidget {
                 itemCount: cart.items.length,
               ),
           ),
+          if (cart.items.isEmpty) Text('No Items in the Cart!!' , style: Theme.of(context).textTheme.headline4,),
         ],
       ),
     );

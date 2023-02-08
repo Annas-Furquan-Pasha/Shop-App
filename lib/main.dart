@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import './screens/edit_products.dart';
+import './screens/user_products_screen.dart';
 import './screens/order_screen.dart';
 import './screens/cart_screen.dart';
 import './screens/product_details.dart';
@@ -31,11 +33,13 @@ class MyApp extends StatelessWidget {
               secondary: const Color.fromRGBO(197, 250, 213, 1),
           ),
           canvasColor: const Color.fromRGBO(255, 255, 210, 1),
-          fontFamily: 'Raleway',
+          fontFamily: 'RobotoCondensed',
           textTheme: const TextTheme(
             headline1: TextStyle(fontSize: 24.0, color: Colors.white),
-            headline2: TextStyle(fontSize: 18.0, fontFamily: 'RobotoCondensed', color: Colors.white),
-            headline3: TextStyle(fontSize: 20.0, fontFamily: 'RobotoCondensed',)
+            headline2: TextStyle(fontSize: 18.0, fontFamily: 'Raleway', color: Colors.white),
+            headline3: TextStyle(fontSize: 20.0, fontFamily: 'Raleway',),
+            headline4: TextStyle(fontFamily: 'Raleway', color: Colors.black54, fontSize: 24.0,),
+            headline5: TextStyle(fontSize: 19.0, fontFamily: 'RobotoCondensed', color: Colors.black),
           )
         ),
         home : const ProductScreen(),
@@ -44,6 +48,8 @@ class MyApp extends StatelessWidget {
           ProductDetailsScreen.routeName : (_) => const ProductDetailsScreen(),
           CartScreen.routeName : (_) => const CartScreen(),
           OrderScreen.routeName : (_) => const OrderScreen(),
+          UserProductScreen.routeName : (_) => const UserProductScreen(),
+          EditProducts.routeName: (_) => const EditProducts(),
         },
       ),
     );

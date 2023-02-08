@@ -32,7 +32,7 @@ class CartDetails extends StatelessWidget {
         child: const Icon(
           Icons.delete,
           color: Colors.white,
-          size: 40,
+          size: 20,
         ),
       ),
       onDismissed: (_) {
