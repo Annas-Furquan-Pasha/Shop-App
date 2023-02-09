@@ -7,7 +7,7 @@ import '../models/http_exception.dart';
 import './product.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _items = [];
+ List<Product> _items;
   //   Product(
   //     id: 'p1',
   //     title: 'Red Shirt',
@@ -41,6 +41,9 @@ class Products with ChangeNotifier {
   //     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
   //   ),
   // ];
+  final String authToken;
+
+  Products(this.authToken, this._items);
 
   List<Product> get favoriteItems {
     return _items.where((prod) => prod.isFavorite).toList();
@@ -55,7 +58,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json');
+    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
         final data = json.decode(response.body);// as Map<String, dynamic>;
@@ -79,7 +82,7 @@ class Products with ChangeNotifier {
 }
 
   Future<void> addProduct(Product product) {
-    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json');
+    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     return http.post(url, body: json.encode({
       'title': product.title,
       'description': product.description,
@@ -104,7 +107,7 @@ class Products with ChangeNotifier {
   Future<void> update(String id, Product p) async {
     final pIndex = _items.indexWhere((element) => element.id == id);
     if(pIndex >= 0) {
-      final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products/$id.json');
+      final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
       await http.patch(url, body: json.encode({
         'title' : p.title,
         'description' : p.description,
@@ -117,7 +120,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products/$id.json');
+    final url = Uri.parse('https://flutter-update-3e477-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final existingProdIndex = _items.indexWhere((element) => element.id == id);
     Product? existingProduct = _items[existingProdIndex];
     _items.removeAt(existingProdIndex);
