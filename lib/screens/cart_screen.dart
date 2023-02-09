@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './order_screen.dart';
 import '../provider/orders.dart';
 import '../widgets/cart_details.dart';
 import '../provider/cart.dart';
@@ -31,18 +30,7 @@ class CartScreen extends StatelessWidget {
                   Text('Total', style: Theme.of(context).textTheme.headline3,),
                   const Spacer(),
                   Chip(label: Text('\$ ${cart.totalAmount.toStringAsFixed(2)}'), backgroundColor: Theme.of(context).colorScheme.secondary,),
-                  TextButton(onPressed: () {
-                    if(cart.items.isNotEmpty) {
-                      Provider.of<Order>(context, listen: false).addOrder(
-                        cart.items.values.toList(),
-                        cart.totalAmount,
-                      );
-                      cart.clear();
-                      Navigator.pushNamed(context, OrderScreen.routeName);
-                    }
-                  },
-                    child: const Text('Order Now'),
-                  ),
+                  OrderButton(cart: cart),
                 ],
               ),
             ),
@@ -64,6 +52,42 @@ class CartScreen extends StatelessWidget {
           if (cart.items.isEmpty) Text('No Items in the Cart!!' , style: Theme.of(context).textTheme.headline4,),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    super.key,
+    required this.cart,
+  });
+
+  final Cart cart;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isloding = false;
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(onPressed:(widget.cart.totalAmount <= 0 || _isloding) ? null : () async {
+        setState(() {
+          _isloding = true;
+        });
+        await Provider.of<Order>(context, listen: false).addOrder(
+          widget.cart.items.values.toList(),
+          widget.cart.totalAmount,
+        );
+        setState(() {
+          _isloding = false;
+        });
+        widget.cart.clear();
+       // Navigator.pushNamed(context, OrderScreen.routeName);
+
+    },
+      child: _isloding ? const CircularProgressIndicator() :  const Text('Order Now'),
     );
   }
 }
