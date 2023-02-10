@@ -24,13 +24,13 @@ class MyApp extends StatelessWidget {
         providers: [
         ChangeNotifierProvider(create: (_) => Auth(),),
         ChangeNotifierProxyProvider<Auth, Products>(
-          create: (ctx) => Products('','', []),
-          update: (ctx, auth, previousItems) => Products(auth.token!, auth.userId!, previousItems==null ? [] : previousItems.items),
+          create: (_) => Products('','', []),
+          update: (_, auth, previousItems) => Products(auth.token!, auth.userId!, previousItems==null ? [] : previousItems.items),
         ),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProxyProvider<Auth, Order>(
-            create: (_) => Order('', []),
-          update: (_, auth, previousOrders) => Order(auth.token!, previousOrders == null ? [] : previousOrders.orders),
+            create: (_) => Order('','', []),
+          update: (_, auth, previousOrders) => Order(auth.token!, auth.userId!, previousOrders == null ? [] : previousOrders.orders),
         ),
         ],
       child: Consumer<Auth>(builder: (ctx, auth, _) => MaterialApp(
@@ -51,7 +51,12 @@ class MyApp extends StatelessWidget {
               headline5: TextStyle(fontSize: 19.0, fontFamily: 'RobotoCondensed', color: Colors.black),
             )
         ),
-        home : auth.isAuth ? const ProductScreen() : const AuthScreen(),
+        home : auth.isAuth ? const ProductScreen() :
+        FutureBuilder(
+            future: auth.tryAutoLogin(),
+            builder:(ctx, snapShot) => snapShot.connectionState == ConnectionState.waiting
+                ? const Scaffold(body: Center(child: CircularProgressIndicator()),)
+                : const AuthScreen()),
         routes: {
           ProductScreen.routeName: (_) => const ProductScreen(),
           ProductDetailsScreen.routeName : (_) => const ProductDetailsScreen(),

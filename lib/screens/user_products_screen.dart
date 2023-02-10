@@ -11,13 +11,12 @@ class UserProductScreen extends StatelessWidget {
   static const routeName = '/user-products-screen';
 
   Future<void> _refresh (BuildContext context) async {
-    await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+    await Provider.of<Products>(context, listen: false).fetchAndSetProducts(true);
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final productsData = Provider.of<Products>(context);
+    // final productsData = Provider.of<Products>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -27,17 +26,23 @@ class UserProductScreen extends StatelessWidget {
         ],
       ),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refresh(context),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: ListView.builder(
-              itemBuilder: (_, index) => UserProductItem(
-                productsData.items[index].id,
-                productsData.items[index].title,
-                productsData.items[index].imageUrl,
+      body: FutureBuilder(
+        future: _refresh(context),
+        builder: (_, snapShot) => snapShot.connectionState== ConnectionState.waiting ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+          onRefresh: () => _refresh(context),
+          child: Consumer<Products>(
+            builder: (ctx, productsData, _) => Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                  itemBuilder: (_, index) => UserProductItem(
+                    productsData.items[index].id,
+                    productsData.items[index].title,
+                    productsData.items[index].imageUrl,
+                  ),
+                 itemCount: productsData.items.length,
               ),
-             itemCount: productsData.items.length,
+            ),
           ),
         ),
       ),
